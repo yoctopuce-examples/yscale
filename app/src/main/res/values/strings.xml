@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">YScale</string>
+
+    <string name="dummy_button">Tare</string>
+    <string name="dummy_content">Weight</string>
+</resources>
