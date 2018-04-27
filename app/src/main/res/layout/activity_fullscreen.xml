@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/myCoordinatorLayout"
+    tools:context=".FullscreenActivity"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#0099cc"
-    tools:context=".FullscreenActivity">
+    android:background="@color/black_overlay"
+
+    android:layout_height="match_parent">
 
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
          TextureView, etc. -->
     <TextView
         android:id="@+id/fullscreen_current_value"
+        tools:text="12.4 kg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
@@ -18,7 +21,6 @@
         android:text="@string/dummy_content"
         android:textColor="#33b5e5"
         android:textSize="150sp"
-        tools:text="12.4 kg"
         android:textStyle="bold" />
 
     <!-- This FrameLayout insets its children based on system windows using
@@ -31,12 +33,12 @@
         <LinearLayout
             android:id="@+id/fullscreen_content_controls"
             style="?metaButtonBarStyle"
+            tools:ignore="UselessParent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center_horizontal"
             android:background="@color/black_overlay"
-            android:orientation="horizontal"
-            tools:ignore="UselessParent">
+            android:orientation="horizontal">
 
             <Button
                 android:id="@+id/tare_button"
@@ -57,4 +59,4 @@
         </LinearLayout>
     </FrameLayout>
 
-</FrameLayout>
+</android.support.design.widget.CoordinatorLayout>

@@ -3,6 +3,7 @@ package com.yoctopuce.examples.yscale;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
@@ -11,6 +12,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.yoctopuce.YoctoAPI.YAPI;
+import com.yoctopuce.YoctoAPI.YAPIContext;
 import com.yoctopuce.YoctoAPI.YAPI_Exception;
 import com.yoctopuce.YoctoAPI.YModule;
 import com.yoctopuce.YoctoAPI.YWeighScale;
@@ -85,16 +87,25 @@ public class FullscreenActivity extends AppCompatActivity {
     private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+
+            switch (motionEvent.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    break;
+                case MotionEvent.ACTION_UP:
+                    if (AUTO_HIDE) {
+                        delayedHide(AUTO_HIDE_DELAY_MILLIS);
+                    }
+                    view.performClick();
+                    break;
+                default:
+                    break;
             }
-            return false;
+            return true;
         }
     };
-    private Button _tare_button;
-    private Button _calibrate_button;
     private String _unit;
     private String _serialNumber;
+    private YAPIContext _yctx;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,14 +116,14 @@ public class FullscreenActivity extends AppCompatActivity {
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.fullscreen_current_value);
-        _tare_button = findViewById(R.id.tare_button);
+        Button _tare_button = findViewById(R.id.tare_button);
         _tare_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 tare();
             }
         });
-        _calibrate_button = findViewById(R.id.calibrate_button);
+        Button _calibrate_button = findViewById(R.id.calibrate_button);
         _calibrate_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -150,15 +161,16 @@ public class FullscreenActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         try {
-            YAPI.EnableUSBHost(this);
-            YAPI.RegisterHub("usb");
-            YAPI.RegisterDeviceArrivalCallback(new YAPI.DeviceArrivalCallback() {
+            _yctx = new YAPIContext();
+            _yctx.EnableUSBHost(this);
+            _yctx.RegisterHub("usb");
+            _yctx.RegisterDeviceArrivalCallback(new YAPI.DeviceArrivalCallback() {
                 @Override
                 public void yDeviceArrival(YModule module) {
                     arrival(module);
                 }
             });
-            YAPI.RegisterDeviceRemovalCallback(new YAPI.DeviceRemovalCallback() {
+            _yctx.RegisterDeviceRemovalCallback(new YAPI.DeviceRemovalCallback() {
                 @Override
                 public void yDeviceRemoval(YModule module) {
                     removal(module);
@@ -166,12 +178,10 @@ public class FullscreenActivity extends AppCompatActivity {
             });
         } catch (YAPI_Exception e) {
             e.printStackTrace();
-            //todo: better error handling
-            /*
             Snackbar.make(mContentView,
                     "Error:" + e.getLocalizedMessage(),
                     Snackbar.LENGTH_INDEFINITE).show();
-                    */
+
         }
         mHideHandler.postDelayed(_periodicUpdate, 100);
     }
@@ -180,12 +190,12 @@ public class FullscreenActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         mHideHandler.removeCallbacks(_periodicUpdate);
-        YAPI.FreeAPI();
+        _yctx.FreeAPI();
         super.onStop();
     }
 
 
-    private double _hardwaredetect;
+    private double _hardware_detect;
     private YWeighScale _yWeighScale;
 
 
@@ -196,10 +206,10 @@ public class FullscreenActivity extends AppCompatActivity {
                 return;
             }
             if (_serialNumber != null && !_serialNumber.equals(serialNumber)) {
-                removal(YModule.FindModule(_serialNumber + ".module"));
+                removal(YModule.FindModuleInContext(_yctx,_serialNumber + ".module"));
             }
             _serialNumber = serialNumber;
-            _yWeighScale = YWeighScale.FindWeighScale(_serialNumber + ".weighScale1");
+            _yWeighScale = YWeighScale.FindWeighScaleInContext(_yctx, _serialNumber + ".weighScale1");
             _yWeighScale.registerValueCallback(new YWeighScale.UpdateCallback() {
                 @Override
                 public void yNewValue(YWeighScale function, String functionValue) {
@@ -207,9 +217,16 @@ public class FullscreenActivity extends AppCompatActivity {
                 }
             });
             _unit = _yWeighScale.get_unit();
+            _yWeighScale.set_zeroTracking(0.5);
+            _yWeighScale.set_excitation(YWeighScale.EXCITATION_AC);
+            _yWeighScale.set_resolution(1);
 
         } catch (YAPI_Exception e) {
             e.printStackTrace();
+            Snackbar.make(mContentView,
+                    "Error:" + e.getLocalizedMessage(),
+                    Snackbar.LENGTH_INDEFINITE).show();
+
         }
     }
 
@@ -224,6 +241,10 @@ public class FullscreenActivity extends AppCompatActivity {
             }
         } catch (YAPI_Exception e) {
             e.printStackTrace();
+            Snackbar.make(mContentView,
+                    "Error:" + e.getLocalizedMessage(),
+                    Snackbar.LENGTH_INDEFINITE).show();
+
         }
 
     }
@@ -239,8 +260,12 @@ public class FullscreenActivity extends AppCompatActivity {
             try {
                 //fixme: add popup to get right parameter
                 _yWeighScale.setupSpan(200, 25000);
+                _yWeighScale.module().saveToFlash();
             } catch (YAPI_Exception e) {
                 e.printStackTrace();
+                Snackbar.make(mContentView,
+                        "Error:" + e.getLocalizedMessage(),
+                        Snackbar.LENGTH_INDEFINITE).show();
             }
         }
     }
@@ -255,24 +280,23 @@ public class FullscreenActivity extends AppCompatActivity {
         }
     }
 
-    private Runnable _periodicUpdate = new Runnable() {
+    private final Runnable _periodicUpdate = new Runnable() {
         @Override
         public void run() {
             try {
-                if (_hardwaredetect++ == 0) {
-                    YAPI.UpdateDeviceList();
+                if (_hardware_detect++ == 0) {
+                    _yctx.UpdateDeviceList();
                 }
-                YAPI.HandleEvents();
-                if (_hardwaredetect > 20) {
-                    _hardwaredetect = 0;
+                _yctx.HandleEvents();
+                if (_hardware_detect > 20) {
+                    _hardware_detect = 0;
                 }
 
             } catch (YAPI_Exception e) {
                 e.printStackTrace();
-                //fixme: better error handling
-                /*Snackbar.make(mContentView,
+                Snackbar.make(mContentView,
                         "Error:" + e.getLocalizedMessage(),
-                        Snackbar.LENGTH_INDEFINITE).show(); */
+                        Snackbar.LENGTH_INDEFINITE).show();
             }
             mHideHandler.postDelayed(_periodicUpdate, 500);
         }
