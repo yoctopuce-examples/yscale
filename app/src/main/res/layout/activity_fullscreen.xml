@@ -10,14 +10,15 @@
          is needed to present your content, e.g. VideoView, SurfaceView,
          TextureView, etc. -->
     <TextView
-        android:id="@+id/fullscreen_content"
+        android:id="@+id/fullscreen_current_value"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
         android:keepScreenOn="true"
         android:text="@string/dummy_content"
         android:textColor="#33b5e5"
-        android:textSize="50sp"
+        android:textSize="150sp"
+        tools:text="12.4 kg"
         android:textStyle="bold" />
 
     <!-- This FrameLayout insets its children based on system windows using
@@ -38,12 +39,20 @@
             tools:ignore="UselessParent">
 
             <Button
-                android:id="@+id/dummy_button"
+                android:id="@+id/tare_button"
                 style="?metaButtonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/dummy_button" />
+
+            <Button
+                android:id="@+id/calibrate_button"
+                style="?metaButtonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/calibrate_button" />
 
         </LinearLayout>
     </FrameLayout>

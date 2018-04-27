@@ -2,5 +2,6 @@
     <string name="app_name">YScale</string>
 
     <string name="dummy_button">Tare</string>
-    <string name="dummy_content">Weight</string>
+    <string name="dummy_content">Offline</string>
+    <string name="calibrate_button">Calibrate</string>
 </resources>
