@@ -10,7 +10,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
+import com.jjoe64.graphview.Viewport;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.yoctopuce.YoctoAPI.YAPI;
@@ -20,8 +23,7 @@ import com.yoctopuce.YoctoAPI.YMeasure;
 import com.yoctopuce.YoctoAPI.YModule;
 import com.yoctopuce.YoctoAPI.YWeighScale;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -47,6 +49,7 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
      */
     private static final int UI_ANIMATION_DELAY = 300;
     public static final int DELAY_MILLIS = 100;
+    public static final int MAX_X = 100;
     private final Handler mHideHandler = new Handler();
     private TextView mContentView;
     private View mControlsView;
@@ -62,6 +65,8 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
     private YAPIContext _yctx;
     private LineGraphSeries<DataPoint> _series;
     private double graph2LastXValue = 0;
+    private double _maxY;
+    private Viewport _viewport;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,10 +106,34 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
 
         GraphView graph = findViewById(R.id.graph);
         _series = new LineGraphSeries<>();
+        _series.setDrawBackground(true);
+        _series.setThickness(10);
         graph.addSeries(_series);
-        graph.getViewport().setXAxisBoundsManual(true);
-        graph.getViewport().setMinX(0);
-        graph.getViewport().setMaxX(40);
+        _viewport = graph.getViewport();
+        _viewport.setXAxisBoundsManual(true);
+        _viewport.setMinX(0);
+        _viewport.setMaxX(40);
+        _viewport.setMinY(0);
+        _maxY = 1000;
+        _viewport.setMaxY(_maxY);
+        _viewport.setYAxisBoundsManual(true);
+        final GridLabelRenderer gridLabelRenderer = graph.getGridLabelRenderer();
+        gridLabelRenderer.setLabelFormatter(new DefaultLabelFormatter() {
+            @Override
+            public String formatLabel(double value, boolean isValueX) {
+                if (isValueX) {
+                    return "";//super.formatLabel(value, true);
+                } else {
+                    // show currency for y values
+                    String label = super.formatLabel(value, false);
+                    if (_unit != null) {
+                        label += " " + _unit;
+                    }
+                    return label;
+                }
+            }
+        });
+
 
         View decorView = getWindow().getDecorView();
         decorView.setOnSystemUiVisibilityChangeListener
@@ -169,8 +198,6 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
     private double _hardware_detect;
     private YWeighScale _yWeighScale;
 
-    DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss:S");
-
 
     private void arrival(YModule module) {
         try {
@@ -225,8 +252,13 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
 
     private void newWeight(YMeasure value) {
         final double averageValue = value.get_averageValue();
+        final Date utc = value.get_startTimeUTC_asDate();
         final String text = String.format(Locale.US, "%.1f %s", averageValue, _unit);
         mContentView.setText(text);
+        if (averageValue > _maxY) {
+            _maxY = averageValue;
+            _viewport.setMaxY(_maxY);
+        }
         _series.appendData(new DataPoint(graph2LastXValue, averageValue), true, 100);
         graph2LastXValue += 1d;
     }

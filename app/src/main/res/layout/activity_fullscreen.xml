@@ -12,6 +12,7 @@
          TextureView, etc. -->
 
     <LinearLayout
+        android:id="@+id/main_part"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -32,8 +33,9 @@
             android:id="@+id/graph"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_gravity="bottom|center_horizontal"
-            android:layout_weight="4" />
+            android:layout_weight="4"
+            android:background="#ffffff"
+            android:padding="16dp" />
     </LinearLayout>
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->
