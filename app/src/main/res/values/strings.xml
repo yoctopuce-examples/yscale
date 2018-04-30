@@ -4,4 +4,7 @@
     <string name="dummy_button">Tare</string>
     <string name="dummy_content">Offline</string>
     <string name="calibrate_button">Calibrate</string>
+    <string name="ref_hint">Current weight</string>
+    <string name="max_hint">Maximum weight</string>
+    <string name="cancel">Cancel</string>
 </resources>

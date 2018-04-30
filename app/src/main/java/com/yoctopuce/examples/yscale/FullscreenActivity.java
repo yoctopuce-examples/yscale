@@ -3,6 +3,7 @@ package com.yoctopuce.examples.yscale;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -21,7 +22,7 @@ import java.util.Locale;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class FullscreenActivity extends AppCompatActivity {
+public class FullscreenActivity extends AppCompatActivity implements CalibrateDialogFragment.CalibrateDialogListener {
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -77,14 +78,14 @@ public class FullscreenActivity extends AppCompatActivity {
             public void onClick(View v) {
                 tare();
                 hide();
-
             }
         });
         Button _calibrate_button = findViewById(R.id.calibrate_button);
         _calibrate_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                calibrate();
+                DialogFragment newFragment = new CalibrateDialogFragment();
+                newFragment.show(getSupportFragmentManager(), "calibration");
                 hide();
             }
         });
@@ -210,15 +211,14 @@ public class FullscreenActivity extends AppCompatActivity {
         mContentView.setText(text);
     }
 
-    private void calibrate() {
-        Snackbar.make(mContentView,
-                "Do some stuff",
-                Snackbar.LENGTH_INDEFINITE).show();
+    private void calibrate(long value, long maxValue) {
         if (_yWeighScale != null) {
             try {
-                //fixme: add popup to get right parameter
-                _yWeighScale.setupSpan(200, 25000);
+                _yWeighScale.setupSpan(value, maxValue);
                 _yWeighScale.module().saveToFlash();
+                Snackbar.make(mContentView,
+                        String.format(Locale.US, "Calibrated for %dg (max %dg)", value, maxValue),
+                        Snackbar.LENGTH_LONG).show();
             } catch (YAPI_Exception e) {
                 e.printStackTrace();
                 Snackbar.make(mContentView,
@@ -310,4 +310,11 @@ public class FullscreenActivity extends AppCompatActivity {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
+
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog, long value, long maxValue) {
+        calibrate(value, maxValue);
+    }
+
+
 }
