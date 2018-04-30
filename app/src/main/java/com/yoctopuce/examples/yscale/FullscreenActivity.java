@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.yoctopuce.YoctoAPI.YAPI;
 import com.yoctopuce.YoctoAPI.YAPIContext;
 import com.yoctopuce.YoctoAPI.YAPI_Exception;
+import com.yoctopuce.YoctoAPI.YMeasure;
 import com.yoctopuce.YoctoAPI.YModule;
 import com.yoctopuce.YoctoAPI.YWeighScale;
 
@@ -98,10 +99,9 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
                         // Note that system bars will only be "visible" if none of the
                         // LOW_PROFILE, HIDE_NAVIGATION, or FULLSCREEN flags are set.
                         if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
-                            mControlsView.setVisibility(View.VISIBLE);
-                            mVisible = true;
                             // adjustments to your UI, such as showing the action bar or
                             // other navigational controls.
+                            show();
                         } else {
                             // TODO: The system bars are NOT visible. Make any desired
                             // adjustments to your UI, such as hiding the action bar or
@@ -166,16 +166,17 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
             }
             _serialNumber = serialNumber;
             _yWeighScale = YWeighScale.FindWeighScaleInContext(_yctx, _serialNumber + ".weighScale1");
-            _yWeighScale.registerValueCallback(new YWeighScale.UpdateCallback() {
-                @Override
-                public void yNewValue(YWeighScale function, String functionValue) {
-                    newWeight(functionValue);
-                }
-            });
             _unit = _yWeighScale.get_unit();
             _yWeighScale.set_zeroTracking(0.5);
             _yWeighScale.set_excitation(YWeighScale.EXCITATION_AC);
             _yWeighScale.set_resolution(1);
+            _yWeighScale.set_reportFrequency("120/m");
+            _yWeighScale.registerTimedReportCallback(new YWeighScale.TimedReportCallback() {
+                @Override
+                public void timedReportCallback(YWeighScale function, YMeasure measure) {
+                    newWeight(measure);
+                }
+            });
 
         } catch (YAPI_Exception e) {
             e.printStackTrace();
@@ -205,9 +206,9 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
 
     }
 
-    private void newWeight(String value) {
-        final String text = String.format(Locale.US, "%s %s",
-                value, _unit);
+    private void newWeight(YMeasure value) {
+        final String text = String.format(Locale.US, "%.1f %s",
+                value.get_averageValue(), _unit);
         mContentView.setText(text);
     }
 
@@ -272,7 +273,7 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
 
     private void hide() {
 
-        //hideAndroidStuff();
+        hideAndroidStuff();
         mControlsView.setVisibility(View.GONE);
         mVisible = false;
     }

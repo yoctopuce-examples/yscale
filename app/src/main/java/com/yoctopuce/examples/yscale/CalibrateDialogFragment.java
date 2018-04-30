@@ -71,14 +71,11 @@ public class CalibrateDialogFragment extends DialogFragment {
                         }
                     }
                 })
-                /*
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        _listener.onDialogNegativeClick(CalibrateDialogFragment.this);
+                        dismiss();
                     }
-                })
-                */
-        ;
+                });
         return builder.create();
     }
 }
