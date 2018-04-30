@@ -10,6 +10,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 import com.yoctopuce.YoctoAPI.YAPI;
 import com.yoctopuce.YoctoAPI.YAPIContext;
 import com.yoctopuce.YoctoAPI.YAPI_Exception;
@@ -17,6 +20,8 @@ import com.yoctopuce.YoctoAPI.YMeasure;
 import com.yoctopuce.YoctoAPI.YModule;
 import com.yoctopuce.YoctoAPI.YWeighScale;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 /**
@@ -41,6 +46,7 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
      * and a change of the status and navigation bar.
      */
     private static final int UI_ANIMATION_DELAY = 300;
+    public static final int DELAY_MILLIS = 100;
     private final Handler mHideHandler = new Handler();
     private TextView mContentView;
     private View mControlsView;
@@ -54,6 +60,8 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
     private String _unit;
     private String _serialNumber;
     private YAPIContext _yctx;
+    private LineGraphSeries<DataPoint> _series;
+    private double graph2LastXValue = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +98,13 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
                 hide();
             }
         });
+
+        GraphView graph = findViewById(R.id.graph);
+        _series = new LineGraphSeries<>();
+        graph.addSeries(_series);
+        graph.getViewport().setXAxisBoundsManual(true);
+        graph.getViewport().setMinX(0);
+        graph.getViewport().setMaxX(40);
 
         View decorView = getWindow().getDecorView();
         decorView.setOnSystemUiVisibilityChangeListener
@@ -139,7 +154,7 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
                     Snackbar.LENGTH_INDEFINITE).show();
 
         }
-        mHideHandler.postDelayed(_periodicUpdate, 100);
+        mHideHandler.postDelayed(_periodicUpdate, DELAY_MILLIS);
     }
 
 
@@ -153,6 +168,8 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
 
     private double _hardware_detect;
     private YWeighScale _yWeighScale;
+
+    DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss:S");
 
 
     private void arrival(YModule module) {
@@ -170,7 +187,7 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
             _yWeighScale.set_zeroTracking(0.5);
             _yWeighScale.set_excitation(YWeighScale.EXCITATION_AC);
             _yWeighScale.set_resolution(1);
-            _yWeighScale.set_reportFrequency("120/m");
+            _yWeighScale.set_reportFrequency("4/s");
             _yWeighScale.registerTimedReportCallback(new YWeighScale.TimedReportCallback() {
                 @Override
                 public void timedReportCallback(YWeighScale function, YMeasure measure) {
@@ -207,9 +224,11 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
     }
 
     private void newWeight(YMeasure value) {
-        final String text = String.format(Locale.US, "%.1f %s",
-                value.get_averageValue(), _unit);
+        final double averageValue = value.get_averageValue();
+        final String text = String.format(Locale.US, "%.1f %s", averageValue, _unit);
         mContentView.setText(text);
+        _series.appendData(new DataPoint(graph2LastXValue, averageValue), true, 100);
+        graph2LastXValue += 1d;
     }
 
     private void calibrate(long value, long maxValue) {
@@ -247,7 +266,7 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
                     _yctx.UpdateDeviceList();
                 }
                 _yctx.HandleEvents();
-                if (_hardware_detect > 20) {
+                if (_hardware_detect > 40) {
                     _hardware_detect = 0;
                 }
 
@@ -257,7 +276,7 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
                         "Error:" + e.getLocalizedMessage(),
                         Snackbar.LENGTH_INDEFINITE).show();
             }
-            mHideHandler.postDelayed(_periodicUpdate, 500);
+            mHideHandler.postDelayed(_periodicUpdate, DELAY_MILLIS);
         }
     };
 
