@@ -89,6 +89,8 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
         _series = new LineGraphSeries<>();
         _series.setDrawBackground(true);
         _series.setThickness(10);
+        _series.setColor(getResources().getColor(R.color.colorAccent));
+        _series.setBackgroundColor(getResources().getColor(R.color.primary));
         graph.addSeries(_series);
         _viewport = graph.getViewport();
         _viewport.setXAxisBoundsManual(true);
