@@ -23,7 +23,6 @@ import com.yoctopuce.YoctoAPI.YMeasure;
 import com.yoctopuce.YoctoAPI.YModule;
 import com.yoctopuce.YoctoAPI.YWeighScale;
 
-import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -31,40 +30,22 @@ import java.util.Locale;
  * status bar and navigation/system bar) with user interaction.
  */
 public class FullscreenActivity extends AppCompatActivity implements CalibrateDialogFragment.CalibrateDialogListener {
-    /**
-     * Whether or not the system UI should be auto-hidden after
-     * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
-     */
-    private static final boolean AUTO_HIDE = true;
-
-    /**
-     * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
-     * user interaction before hiding the system UI.
-     */
-    private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
 
     /**
      * Some older devices needs a small delay between UI widget updates
      * and a change of the status and navigation bar.
      */
-    private static final int UI_ANIMATION_DELAY = 300;
-    public static final int DELAY_MILLIS = 100;
-    public static final int MAX_X = 100;
-    private final Handler mHideHandler = new Handler();
-    private TextView mContentView;
-    private View mControlsView;
-    private boolean mVisible;
-    private final Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            hide();
-        }
-    };
+    private static final int DELAY_MILLIS = 100;
+    private static final int MAX_X = 100;
+    private final Handler _handler = new Handler();
+    private TextView _textView;
+    private View _controlsView;
+    private boolean _isVisible;
     private String _unit;
     private String _serialNumber;
     private YAPIContext _yctx;
     private LineGraphSeries<DataPoint> _series;
-    private double graph2LastXValue = 0;
+    private double _lastXValue = 0;
     private double _maxY;
     private Viewport _viewport;
 
@@ -77,10 +58,10 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
             actionBar.hide();
         }
 
-        mVisible = true;
-        mControlsView = findViewById(R.id.fullscreen_content_controls);
-        mContentView = findViewById(R.id.fullscreen_current_value);
-        mContentView.setOnClickListener(new View.OnClickListener() {
+        _isVisible = true;
+        _controlsView = findViewById(R.id.fullscreen_content_controls);
+        _textView = findViewById(R.id.fullscreen_current_value);
+        _textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 toggle();
@@ -112,7 +93,7 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
         _viewport = graph.getViewport();
         _viewport.setXAxisBoundsManual(true);
         _viewport.setMinX(0);
-        _viewport.setMaxX(40);
+        _viewport.setMaxX(MAX_X);
         _viewport.setMinY(0);
         _maxY = 1000;
         _viewport.setMaxY(_maxY);
@@ -134,7 +115,6 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
             }
         });
 
-
         View decorView = getWindow().getDecorView();
         decorView.setOnSystemUiVisibilityChangeListener
                 (new View.OnSystemUiVisibilityChangeListener() {
@@ -143,13 +123,7 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
                         // Note that system bars will only be "visible" if none of the
                         // LOW_PROFILE, HIDE_NAVIGATION, or FULLSCREEN flags are set.
                         if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
-                            // adjustments to your UI, such as showing the action bar or
-                            // other navigational controls.
                             show();
-                        } else {
-                            // TODO: The system bars are NOT visible. Make any desired
-                            // adjustments to your UI, such as hiding the action bar or
-                            // other navigational controls.
                         }
                     }
                 });
@@ -178,18 +152,18 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
             });
         } catch (YAPI_Exception e) {
             e.printStackTrace();
-            Snackbar.make(mContentView,
+            Snackbar.make(_textView,
                     "Error:" + e.getLocalizedMessage(),
                     Snackbar.LENGTH_INDEFINITE).show();
 
         }
-        mHideHandler.postDelayed(_periodicUpdate, DELAY_MILLIS);
+        _handler.postDelayed(_periodicUpdate, DELAY_MILLIS);
     }
 
 
     @Override
     protected void onStop() {
-        mHideHandler.removeCallbacks(_periodicUpdate);
+        _handler.removeCallbacks(_periodicUpdate);
         _yctx.FreeAPI();
         super.onStop();
     }
@@ -201,15 +175,17 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
 
     private void arrival(YModule module) {
         try {
-            String serialNumber = module.get_serialNumber();
-            if (!serialNumber.startsWith("YWBRIDG1")) {
+            String serial = module.get_serialNumber();
+            if (!serial.startsWith("YWBRIDG1")) {
                 return;
             }
-            if (_serialNumber != null && !_serialNumber.equals(serialNumber)) {
-                removal(YModule.FindModuleInContext(_yctx, _serialNumber + ".module"));
+            if (_serialNumber != null && !_serialNumber.equals(serial)) {
+                removal(YModule.FindModuleInContext(_yctx,
+                        _serialNumber + ".module"));
             }
-            _serialNumber = serialNumber;
-            _yWeighScale = YWeighScale.FindWeighScaleInContext(_yctx, _serialNumber + ".weighScale1");
+            _serialNumber = serial;
+            _yWeighScale = YWeighScale.FindWeighScaleInContext(_yctx,
+                    _serialNumber + ".weighScale1");
             _unit = _yWeighScale.get_unit();
             _yWeighScale.set_zeroTracking(0.5);
             _yWeighScale.set_excitation(YWeighScale.EXCITATION_AC);
@@ -218,13 +194,13 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
             _yWeighScale.registerTimedReportCallback(new YWeighScale.TimedReportCallback() {
                 @Override
                 public void timedReportCallback(YWeighScale function, YMeasure measure) {
-                    newWeight(measure);
+                    newMeasure(measure);
                 }
             });
 
         } catch (YAPI_Exception e) {
             e.printStackTrace();
-            Snackbar.make(mContentView,
+            Snackbar.make(_textView,
                     "Error:" + e.getLocalizedMessage(),
                     Snackbar.LENGTH_INDEFINITE).show();
 
@@ -238,11 +214,11 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
                 _yWeighScale.registerValueCallback((YWeighScale.UpdateCallback) null);
                 _yWeighScale = null;
                 _serialNumber = null;
-                mContentView.setText(R.string.dummy_content);
+                _textView.setText(R.string.dummy_content);
             }
         } catch (YAPI_Exception e) {
             e.printStackTrace();
-            Snackbar.make(mContentView,
+            Snackbar.make(_textView,
                     "Error:" + e.getLocalizedMessage(),
                     Snackbar.LENGTH_INDEFINITE).show();
 
@@ -250,17 +226,16 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
 
     }
 
-    private void newWeight(YMeasure value) {
-        final double averageValue = value.get_averageValue();
-        final Date utc = value.get_startTimeUTC_asDate();
+    private void newMeasure(YMeasure measure) {
+        final double averageValue = measure.get_averageValue();
         final String text = String.format(Locale.US, "%.1f %s", averageValue, _unit);
-        mContentView.setText(text);
+        _textView.setText(text);
         if (averageValue > _maxY) {
             _maxY = averageValue;
             _viewport.setMaxY(_maxY);
         }
-        _series.appendData(new DataPoint(graph2LastXValue, averageValue), true, 100);
-        graph2LastXValue += 1d;
+        _series.appendData(new DataPoint(_lastXValue, averageValue), true, MAX_X);
+        _lastXValue += 1d;
     }
 
     private void calibrate(long value, long maxValue) {
@@ -268,12 +243,12 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
             try {
                 _yWeighScale.setupSpan(value, maxValue);
                 _yWeighScale.module().saveToFlash();
-                Snackbar.make(mContentView,
+                Snackbar.make(_textView,
                         String.format(Locale.US, "Calibrated for %dg (max %dg)", value, maxValue),
                         Snackbar.LENGTH_LONG).show();
             } catch (YAPI_Exception e) {
                 e.printStackTrace();
-                Snackbar.make(mContentView,
+                Snackbar.make(_textView,
                         "Error:" + e.getLocalizedMessage(),
                         Snackbar.LENGTH_INDEFINITE).show();
             }
@@ -304,17 +279,17 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
 
             } catch (YAPI_Exception e) {
                 e.printStackTrace();
-                Snackbar.make(mContentView,
+                Snackbar.make(_textView,
                         "Error:" + e.getLocalizedMessage(),
                         Snackbar.LENGTH_INDEFINITE).show();
             }
-            mHideHandler.postDelayed(_periodicUpdate, DELAY_MILLIS);
+            _handler.postDelayed(_periodicUpdate, DELAY_MILLIS);
         }
     };
 
 
     private void toggle() {
-        if (mVisible) {
+        if (_isVisible) {
             hide();
         } else {
             show();
@@ -325,15 +300,14 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
     private void hide() {
 
         hideAndroidStuff();
-        mControlsView.setVisibility(View.GONE);
-        mVisible = false;
+        _controlsView.setVisibility(View.GONE);
+        _isVisible = false;
     }
 
     private void show() {
 
-        //hideAndroidStuff();
-        mControlsView.setVisibility(View.VISIBLE);
-        mVisible = true;
+        _controlsView.setVisibility(View.VISIBLE);
+        _isVisible = true;
     }
 
     private void hideAndroidStuff() {
@@ -354,19 +328,9 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
     }
 
 
-    /**
-     * Schedules a call to hide() in delay milliseconds, canceling any
-     * previously scheduled calls.
-     */
-    private void delayedHide(int delayMillis) {
-        mHideHandler.removeCallbacks(mHideRunnable);
-        mHideHandler.postDelayed(mHideRunnable, delayMillis);
-    }
-
     @Override
     public void onDialogPositiveClick(DialogFragment dialog, long value, long maxValue) {
         calibrate(value, maxValue);
     }
-
 
 }

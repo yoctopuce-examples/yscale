@@ -28,7 +28,7 @@ public class CalibrateDialogFragment extends DialogFragment {
     }
 
     // Use this instance of the interface to deliver action events
-    CalibrateDialogListener _listener;
+    private CalibrateDialogListener _listener;
 
     @Override
     public void onAttach(Context context) {
