@@ -42,16 +42,7 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
-
-        _toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(_toolbar);
-        final ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            //actionBar.setDisplayHomeAsUpEnabled(false);
-            actionBar.hide();
-        }
-
-        _viewPager = findViewById(R.id.viewpager);
+       _viewPager = findViewById(R.id.viewpager);
         setupViewPager(_viewPager);
 
         _tabLayout = findViewById(R.id.tabs);
@@ -64,6 +55,7 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
         _viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         _viewPagerAdapter.addFragment( new GraphScaleFragment(), "Graph");
         _viewPagerAdapter.addFragment(new CountScaleFragment(), "Count");
+        _viewPagerAdapter.addFragment(new SettingsFragment(), "Settings");
         viewPager.setAdapter(_viewPagerAdapter);
     }
 
@@ -284,6 +276,12 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
     public void onTare()
     {
         tare();
+    }
+
+    @Override
+    public void goToSettings()
+    {
+        _viewPager.setCurrentItem(2,true);
     }
 
 

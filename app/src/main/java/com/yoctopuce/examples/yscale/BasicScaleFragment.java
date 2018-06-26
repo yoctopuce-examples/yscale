@@ -15,13 +15,15 @@ import com.yoctopuce.YoctoAPI.YMeasure;
  */
 public class BasicScaleFragment extends Fragment
 {
-    private OnFragmentAction _activity;
+    protected OnFragmentAction _activity;
 
 
     // Container Activity must implement this interface
     public interface OnFragmentAction
     {
         public void onTare();
+
+        public void goToSettings();
     }
 
 

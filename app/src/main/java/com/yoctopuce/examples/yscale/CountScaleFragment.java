@@ -48,7 +48,7 @@ public class CountScaleFragment extends BasicScaleFragment
             @Override
             public void onClick(View v)
             {
-
+                _activity.goToSettings();
             }
         });
         return view;
