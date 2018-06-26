@@ -1,6 +1,7 @@
 package com.yoctopuce.examples.yscale;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +24,7 @@ public class CountScaleFragment extends BasicScaleFragment
     private Button _setRatioButton;
     private String _unit;
     private double _weight_ref = 22.2;
-    private double _count_ref = 5;
+    private long _count_ref = 5;
     private String _count_label = "box";
 
 
@@ -33,11 +34,11 @@ public class CountScaleFragment extends BasicScaleFragment
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
-        final View view = inflater.inflate(R.layout.fragment_basic_scale, container, false);
+        final View view = inflater.inflate(R.layout.fragment_count_scale, container, false);
         _currentCountText = view.findViewById(R.id.current_count);
         _currentWeightText = view.findViewById(R.id.current_weight);
         _currentRatioText = view.findViewById(R.id.current_ratio);
@@ -56,7 +57,7 @@ public class CountScaleFragment extends BasicScaleFragment
 
     private String formatRatio()
     {
-        return String.format(Locale.US, "%f %s = %f %s", _weight_ref, _unit, _count_ref, _count_label);
+        return String.format(Locale.US, "%.1f %s = %d %s", _weight_ref, _unit, _count_ref, _count_label);
     }
 
 

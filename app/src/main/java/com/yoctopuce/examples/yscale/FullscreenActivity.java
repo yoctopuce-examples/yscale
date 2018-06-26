@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -63,23 +62,23 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
     private void setupViewPager(ViewPager viewPager)
     {
         _viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        _viewPagerAdapter.addFragment(new GraphScaleFragment(), "Graph");
+        _viewPagerAdapter.addFragment( new GraphScaleFragment(), "Graph");
         _viewPagerAdapter.addFragment(new CountScaleFragment(), "Count");
         viewPager.setAdapter(_viewPagerAdapter);
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter
     {
-        private final List<Fragment> mFragmentList = new ArrayList<>();
+        final List<BasicScaleFragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
 
-        public ViewPagerAdapter(FragmentManager manager)
+        ViewPagerAdapter(FragmentManager manager)
         {
             super(manager);
         }
 
         @Override
-        public Fragment getItem(int position)
+        public BasicScaleFragment getItem(int position)
         {
             return mFragmentList.get(position);
         }
@@ -90,7 +89,7 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
             return mFragmentList.size();
         }
 
-        public void addFragment(Fragment fragment, String title)
+        void addFragment(BasicScaleFragment fragment, String title)
         {
             mFragmentList.add(fragment);
             mFragmentTitleList.add(title);
@@ -181,7 +180,9 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
                 }
             });
 
-            getDiplayedFragment().onNewDeviceArrival(_serialNumber, _unit);
+            for (BasicScaleFragment fragment :_viewPagerAdapter.mFragmentList){
+                fragment.onNewDeviceArrival(_serialNumber,_unit);
+            }
         } catch (YAPI_Exception e) {
             e.printStackTrace();
             Snackbar.make(_viewPager,
@@ -193,7 +194,7 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
 
     private BasicScaleFragment getDiplayedFragment()
     {
-        return (BasicScaleFragment) _viewPagerAdapter.getItem(_viewPager.getCurrentItem());
+        return _viewPagerAdapter.getItem(_viewPager.getCurrentItem());
     }
 
     private void removal(YModule module)
@@ -204,10 +205,9 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
                 _yWeighScale.registerValueCallback((YWeighScale.UpdateCallback) null);
                 _yWeighScale = null;
                 _serialNumber = null;
-                getDiplayedFragment().onNewDeviceRemoval(serialNumber);
-
-                //_viewPager.setText(R.string.dummy_content);
-
+                for (BasicScaleFragment fragment :_viewPagerAdapter.mFragmentList){
+                    fragment.onNewDeviceRemoval(serialNumber);
+                }
             }
         } catch (YAPI_Exception e) {
             e.printStackTrace();

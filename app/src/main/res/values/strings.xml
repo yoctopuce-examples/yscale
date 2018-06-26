@@ -7,4 +7,5 @@
     <string name="ref_hint">Current weight</string>
     <string name="max_hint">Maximum weight</string>
     <string name="cancel">Cancel</string>
+    <string name="set_reference">Set reference</string>
 </resources>
