@@ -16,4 +16,11 @@
     <string name="item">Item</string>
     <string name="unit">Unit</string>
     <string name="saved_last_pannel">saved_last_pannel</string>
+    <string name="scale_settings">Scale settings</string>
+    <string name="counting_settings">Counting settings</string>
+    <string name="load_cell_settings">Load cell settings</string>
+    <string name="calibrate_load_cell">Calibrate load cell</string>
+    <string name="reference_weight">Reference weight</string>
+    <string name="reference_count">Reference count</string>
+    <string name="current_weight">Current weight:</string>
 </resources>
