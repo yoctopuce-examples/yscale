@@ -1,5 +1,6 @@
 package com.yoctopuce.examples.yscale;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
@@ -8,8 +9,8 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
 
 import com.yoctopuce.YoctoAPI.YAPI;
@@ -42,8 +43,9 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
-       _viewPager = findViewById(R.id.viewpager);
+        _viewPager = findViewById(R.id.viewpager);
         setupViewPager(_viewPager);
+
 
         _tabLayout = findViewById(R.id.tabs);
         _tabLayout.setupWithViewPager(_viewPager);
@@ -52,11 +54,24 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
 
     private void setupViewPager(ViewPager viewPager)
     {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        float weight = sharedPref.getFloat(getString(R.string.saved_ref_weight), 0);
+        long count = sharedPref.getLong(getString(R.string.saved_ref_count), 0);
+        String countUnit = sharedPref.getString(getString(R.string.saved_ref_unit), "Item(s)");
+        String lastPannel = sharedPref.getString(getString(R.string.saved_last_pannel), "Graph");
+
         _viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        _viewPagerAdapter.addFragment( new GraphScaleFragment(), "Graph");
+        _viewPagerAdapter.addFragment(new GraphScaleFragment(), "Graph");
         _viewPagerAdapter.addFragment(new CountScaleFragment(), "Count");
         _viewPagerAdapter.addFragment(new SettingsFragment(), "Settings");
         viewPager.setAdapter(_viewPagerAdapter);
+        for (BasicScaleFragment fragment : _viewPagerAdapter.mFragmentList) {
+            fragment.onCountChanges(weight, count, countUnit);
+        }
+        if (lastPannel.equals("Count")) {
+            _viewPager.setCurrentItem(1);
+        }
+
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter
@@ -134,6 +149,14 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
     @Override
     protected void onStop()
     {
+
+        // save current panel to restart the application in the same state
+        final int curTabIdx = _viewPager.getCurrentItem();
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .edit()
+                .putString(getString(R.string.saved_last_pannel), _viewPagerAdapter.mFragmentTitleList.get(curTabIdx))
+                .apply();
+
         _handler.removeCallbacks(_periodicUpdate);
         _yctx.FreeAPI();
         super.onStop();
@@ -172,8 +195,9 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
                 }
             });
 
-            for (BasicScaleFragment fragment :_viewPagerAdapter.mFragmentList){
-                fragment.onNewDeviceArrival(_serialNumber,_unit);
+            for (BasicScaleFragment fragment : _viewPagerAdapter.mFragmentList) {
+                fragment.onNewDeviceArrival(_serialNumber, _unit);
+
             }
         } catch (YAPI_Exception e) {
             e.printStackTrace();
@@ -197,7 +221,7 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
                 _yWeighScale.registerValueCallback((YWeighScale.UpdateCallback) null);
                 _yWeighScale = null;
                 _serialNumber = null;
-                for (BasicScaleFragment fragment :_viewPagerAdapter.mFragmentList){
+                for (BasicScaleFragment fragment : _viewPagerAdapter.mFragmentList) {
                     fragment.onNewDeviceRemoval(serialNumber);
                 }
             }
@@ -281,7 +305,31 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
     @Override
     public void goToSettings()
     {
-        _viewPager.setCurrentItem(2,true);
+        _viewPager.setCurrentItem(2, true);
+    }
+
+    @Override
+    public void onCalibrate()
+    {
+        DialogFragment newFragment = new CalibrateDialogFragment();
+        newFragment.show(getSupportFragmentManager(), "calibration");
+    }
+
+    @Override
+    public void onCountSettingsChange(float weight, long count, String countUnit)
+    {
+        // first save values in preferences
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .edit()
+                .putFloat(getString(R.string.saved_ref_weight), weight)
+                .putLong(getString(R.string.saved_ref_count), count)
+                .putString(getString(R.string.saved_ref_unit), countUnit)
+                .apply();
+        // then update all fragments
+        for (BasicScaleFragment fragment : _viewPagerAdapter.mFragmentList) {
+            fragment.onCountChanges(weight, count, countUnit);
+        }
+
     }
 
 

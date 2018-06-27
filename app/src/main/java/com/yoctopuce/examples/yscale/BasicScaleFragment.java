@@ -17,6 +17,11 @@ public class BasicScaleFragment extends Fragment
 {
     protected OnFragmentAction _activity;
 
+    public void onCountChanges(float weight, long count, String countUnit)
+    {
+
+    }
+
 
     // Container Activity must implement this interface
     public interface OnFragmentAction
@@ -24,6 +29,10 @@ public class BasicScaleFragment extends Fragment
         public void onTare();
 
         public void goToSettings();
+
+        public void onCalibrate();
+
+        void onCountSettingsChange(float weight, long count, String countUnit);
     }
 
 

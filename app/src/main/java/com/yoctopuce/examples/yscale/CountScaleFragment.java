@@ -23,9 +23,9 @@ public class CountScaleFragment extends BasicScaleFragment
     private TextView _currentRatioText;
     private Button _setRatioButton;
     private String _unit;
-    private double _weight_ref = 22.2;
-    private long _count_ref = 5;
-    private String _count_label = "box";
+    private double _weight_ref = 1;
+    private long _count_ref = 1;
+    private String _count_label = "";
 
 
     public CountScaleFragment()
@@ -98,9 +98,24 @@ public class CountScaleFragment extends BasicScaleFragment
     {
         super.onNewMeasure(measure);
         final double weight = measure.get_averageValue();
-        double count = weight * _count_ref / _weight_ref;
+        double count;
+        if (_weight_ref != 0) {
+            count = weight * _count_ref / _weight_ref;
+        } else {
+            count = 0;
+        }
         _currentCountText.setText(formatCount((int) count));
         _currentWeightText.setText(formatWeight(weight));
     }
 
+    @Override
+    public void onCountChanges(float weight, long count, String countUnit)
+    {
+        _weight_ref = weight;
+        _count_ref = count;
+        _count_label = countUnit;
+        if (_currentRatioText != null) {
+            _currentRatioText.setText(formatRatio());
+        }
+    }
 }

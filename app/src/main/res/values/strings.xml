@@ -8,4 +8,12 @@
     <string name="max_hint">Maximum weight</string>
     <string name="cancel">Cancel</string>
     <string name="set_reference">Set reference</string>
+    <string name="saved_ref_weight">saved_ref_weight</string>
+    <string name="saved_ref_count">saved_ref_count</string>
+    <string name="saved_ref_unit">saved_ref_unit</string>
+    <string name="tare">Tare</string>
+    <string name="use_current_value">Use current value</string>
+    <string name="item">Item</string>
+    <string name="unit">Unit</string>
+    <string name="saved_last_pannel">saved_last_pannel</string>
 </resources>
