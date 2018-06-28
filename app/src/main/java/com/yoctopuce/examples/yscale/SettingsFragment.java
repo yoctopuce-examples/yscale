@@ -31,6 +31,7 @@ public class SettingsFragment extends BasicScaleFragment
     private Button _tare;
     private Button _calibrate;
     private boolean _disable_onchange = false;
+    private Button _setValue;
     //private boolean _devicePresent = false;
 
 
@@ -108,8 +109,8 @@ public class SettingsFragment extends BasicScaleFragment
         });
 
         //configure set weight button
-        final Button setValue = view.findViewById(R.id.setWeightbutton);
-        setValue.setOnClickListener(new View.OnClickListener()
+        _setValue = view.findViewById(R.id.setWeightbutton);
+        _setValue.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
@@ -225,6 +226,9 @@ public class SettingsFragment extends BasicScaleFragment
         }
         if (_tare != null) {
             _tare.setEnabled(b);
+        }
+        if (_setValue != null) {
+            _setValue.setEnabled(b);
         }
     }
 
