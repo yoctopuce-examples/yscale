@@ -1,14 +1,8 @@
 package com.yoctopuce.examples.yscale;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import com.yoctopuce.YoctoAPI.YMeasure;
 
 /**
  * Created by Yoctopuce on 25.06.2018.
@@ -16,8 +10,10 @@ import com.yoctopuce.YoctoAPI.YMeasure;
 public class BasicScaleFragment extends Fragment
 {
     protected OnFragmentAction _activity;
+    protected boolean _devicePresent;
+    protected String _unit = "";
 
-    public void onCountChanges(float weight, long count, String countUnit)
+    public void onCountChanges(double weight, long count, String countUnit)
     {
 
     }
@@ -32,7 +28,7 @@ public class BasicScaleFragment extends Fragment
 
         public void onCalibrate();
 
-        void onCountSettingsChange(float weight, long count, String countUnit);
+        void onCountSettingsChange(double weight, long count, String countUnit);
     }
 
 
@@ -56,19 +52,22 @@ public class BasicScaleFragment extends Fragment
     }
 
 
-
     public void onNewDeviceArrival(String serialNumber, String unit)
     {
         Log.d("Basic", "arrival of " + serialNumber);
+        _devicePresent = true;
+        _unit = unit;
+
     }
 
     public void onNewDeviceRemoval(String serialNumber)
     {
         Log.d("Basic", "removal of " + serialNumber);
+        _devicePresent = false;
 
     }
 
-    public void onNewMeasure(YMeasure measure)
+    public void onNewMeasure(double measure)
     {
 
     }

@@ -4,13 +4,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:paddingBottom="32dp"
         android:orientation="vertical">
+
 
         <TextView
             style="@style/settings_section"
@@ -22,18 +27,18 @@
             android:id="@+id/linearLayout2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp">
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp">
 
             <TextView
                 android:id="@+id/textView"
+                style="@style/settings_parameter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
                 android:gravity="center"
                 android:text="@string/current_weight"
-                style="@style/settings_parameter"
                 app:layout_constraintBaseline_toBaselineOf="@+id/liveValue"
                 app:layout_constraintStart_toStartOf="parent" />
 
@@ -62,10 +67,8 @@
 
         </android.support.constraint.ConstraintLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="?android:attr/listDivider" />
+        <View style="@style/divider" />
+
 
         <TextView
             style="@style/settings_section"
@@ -73,93 +76,69 @@
             android:layout_height="wrap_content"
             android:text="@string/counting_settings" />
 
-        <TableLayout
+
+        <TextView
+            style="@style/settings_parameter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/reference_weight" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/ref_weight"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_weight="1"
+                android:ems="10"
+                android:hint="@string/_12_4"
+                android:inputType="numberDecimal" />
+
+
+            <Button
+                android:id="@+id/setWeightbutton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/use_current_value" />
+        </LinearLayout>
+
+        <TextView
+            style="@style/settings_parameter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/reference_count" />
+
+        <EditText
+            android:id="@+id/refCount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp">
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/settings_parameter"
-                    android:text="@string/reference_weight" />
-
-                <EditText
-                    android:id="@+id/ref_weight"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_weight="1"
-                    android:ems="10" />
+            android:layout_weight="1"
+            android:ems="10"
+            android:hint="@string/_6"
+            android:inputType="number" />
 
 
-            </TableRow>
+        <TextView
+            style="@style/settings_parameter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/unit" />
 
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <Button
-                    android:id="@+id/setWeightbutton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_column="1"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/use_current_value" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/settings_parameter"
-                    android:text="@string/reference_count" />
-
-                <EditText
-                    android:id="@+id/refCount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:inputType="number" />
-
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/unit"
-                    style="@style/settings_parameter" />
-
-                <EditText
-                    android:id="@+id/countUnit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:hint="@string/item"
-                    android:inputType="textAutoComplete" />
-            </TableRow>
-
-        </TableLayout>
-
-        <View
+        <EditText
+            android:id="@+id/countUnit"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="?android:attr/listDivider" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:ems="10"
+            android:hint="@string/item"
+            android:inputType="textAutoComplete" />
+
+        <View style="@style/divider" />
 
         <TextView
             style="@style/settings_section"
@@ -169,7 +148,7 @@
 
         <Button
             android:id="@+id/calibrate"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="@string/calibrate_load_cell" />

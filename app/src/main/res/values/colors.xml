@@ -14,4 +14,6 @@
     <color name="secondary_text">#757575</color>
     <color name="icons">#FFFFFF</color>
     <color name="divider">#BDBDBD</color>
+    <color name="tabs_other">#BDBDBD</color>
+    <color name="tab_selected">#FFFFFF</color>
 </resources>

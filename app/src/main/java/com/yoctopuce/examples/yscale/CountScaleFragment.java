@@ -5,10 +5,7 @@ import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
-
-import com.yoctopuce.YoctoAPI.YMeasure;
 
 import java.util.Locale;
 
@@ -21,7 +18,6 @@ public class CountScaleFragment extends BasicScaleFragment
     private TextView _currentCountText;
     private TextView _currentWeightText;
     private TextView _currentRatioText;
-    private Button _setRatioButton;
     private String _unit;
     private double _weight_ref = 1;
     private long _count_ref = 1;
@@ -42,22 +38,14 @@ public class CountScaleFragment extends BasicScaleFragment
         _currentCountText = view.findViewById(R.id.current_count);
         _currentWeightText = view.findViewById(R.id.current_weight);
         _currentRatioText = view.findViewById(R.id.current_ratio);
-        _setRatioButton = view.findViewById(R.id.setRatio);
-        _setRatioButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                _activity.goToSettings();
-            }
-        });
+        updateUI();
         return view;
     }
 
 
     private String formatRatio()
     {
-        return String.format(Locale.US, "%.1f %s = %d %s", _weight_ref, _unit, _count_ref, _count_label);
+        return String.format(Locale.US, "%s %s = %d %s", _weight_ref, _unit, _count_ref, _count_label);
     }
 
 
@@ -68,7 +56,7 @@ public class CountScaleFragment extends BasicScaleFragment
 
     private String formatWeight(double weight)
     {
-        return String.format(Locale.US, "(%.1f%s)", weight, _unit);
+        return String.format(Locale.US, "(%s%s)", weight, _unit);
     }
 
 
@@ -77,45 +65,65 @@ public class CountScaleFragment extends BasicScaleFragment
     {
         super.onNewDeviceArrival(serialNumber, unit);
         _unit = unit;
-        _currentCountText.setText(formatCount(0));
-        _currentWeightText.setText(formatWeight(0));
-        _currentRatioText.setText(formatRatio());
-        _setRatioButton.setEnabled(true);
+        updateUI();
+    }
+
+    private void updateUI()
+    {
+
+        if (_currentCountText != null) {
+            if (_devicePresent) {
+                _currentCountText.setText(formatCount(0));
+            } else {
+                _currentCountText.setText(R.string.dummy_content);
+            }
+        }
+        if (_currentWeightText != null) {
+            if (_devicePresent) {
+                _currentWeightText.setText(formatWeight(0));
+            } else {
+                _currentWeightText.setText("");
+            }
+        }
+        if (_currentRatioText != null) {
+            if (_devicePresent) {
+                _currentRatioText.setText(formatRatio());
+            } else {
+                _currentRatioText.setText("");
+            }
+        }
     }
 
     @Override
     public void onNewDeviceRemoval(String serialNumber)
     {
         super.onNewDeviceRemoval(serialNumber);
-        _currentCountText.setText(R.string.dummy_content);
-        _currentWeightText.setText("");
-        _currentRatioText.setText("");
-        _setRatioButton.setEnabled(false);
     }
 
     @Override
-    public void onNewMeasure(YMeasure measure)
+    public void onNewMeasure(double weight)
     {
-        super.onNewMeasure(measure);
-        final double weight = measure.get_averageValue();
+        super.onNewMeasure(weight);
         double count;
         if (_weight_ref != 0) {
             count = weight * _count_ref / _weight_ref;
         } else {
             count = 0;
         }
-        _currentCountText.setText(formatCount((int) count));
-        _currentWeightText.setText(formatWeight(weight));
+        if (_currentCountText != null) {
+            _currentCountText.setText(formatCount((int) count));
+        }
+        if (_currentWeightText != null) {
+            _currentWeightText.setText(formatWeight(weight));
+        }
     }
 
     @Override
-    public void onCountChanges(float weight, long count, String countUnit)
+    public void onCountChanges(double weight, long count, String countUnit)
     {
         _weight_ref = weight;
         _count_ref = count;
         _count_label = countUnit;
-        if (_currentRatioText != null) {
-            _currentRatioText.setText(formatRatio());
-        }
+        updateUI();
     }
 }

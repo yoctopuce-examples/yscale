@@ -12,7 +12,6 @@ import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.Viewport;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
-import com.yoctopuce.YoctoAPI.YMeasure;
 
 import java.util.Locale;
 
@@ -27,7 +26,6 @@ public class GraphScaleFragment extends BasicScaleFragment
     private double _maxY;
     private Viewport _viewport;
     private static final int MAX_X = 100;
-    private String _unit = "";
 
 
     public GraphScaleFragment()
@@ -80,38 +78,34 @@ public class GraphScaleFragment extends BasicScaleFragment
         return view;
     }
 
-
-    @Override
-    public void onNewDeviceArrival(String serialNumber, String unit)
-    {
-        super.onNewDeviceArrival(serialNumber, unit);
-        _unit = unit;
-    }
-
     @Override
     public void onNewDeviceRemoval(String serialNumber)
     {
         super.onNewDeviceRemoval(serialNumber);
-        _textView.setText(R.string.dummy_content);
+        if (_textView != null) {
+            _textView.setText(R.string.dummy_content);
+        }
     }
 
     @Override
-    public void onNewMeasure(YMeasure measure)
+    public void onNewMeasure(double weight)
     {
-        final double averageValue = measure.get_averageValue();
         final String text;
 
-        if (averageValue > 1000) {
-            text = String.format(Locale.US, "%.3f %s", averageValue / 1000, "kg");
+        if (weight > 1000) {
+            text = String.format(Locale.US, "%.3f %s", weight / 1000, "kg");
         } else {
-            text = String.format(Locale.US, "%d %s", (int) averageValue, _unit);
+
+            text = String.format(Locale.US, "%s %s", weight, _unit);
         }
-        _textView.setText(text);
-        if (averageValue > _maxY) {
-            _maxY = averageValue;
+        if (_textView != null) {
+            _textView.setText(text);
+        }
+        if (weight > _maxY) {
+            _maxY = weight;
             _viewport.setMaxY(_maxY);
         }
-        _series.appendData(new DataPoint(_lastXValue, averageValue), true, MAX_X);
+        _series.appendData(new DataPoint(_lastXValue, weight), true, MAX_X);
         _lastXValue += 1d;
     }
 

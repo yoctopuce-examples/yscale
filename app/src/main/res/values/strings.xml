@@ -12,7 +12,7 @@
     <string name="saved_ref_count">saved_ref_count</string>
     <string name="saved_ref_unit">saved_ref_unit</string>
     <string name="tare">Tare</string>
-    <string name="use_current_value">Use current value</string>
+    <string name="use_current_value">Use current weight</string>
     <string name="item">Item</string>
     <string name="unit">Unit</string>
     <string name="saved_last_pannel">saved_last_pannel</string>
@@ -23,4 +23,6 @@
     <string name="reference_weight">Reference weight</string>
     <string name="reference_count">Reference count</string>
     <string name="current_weight">Current weight:</string>
+    <string name="_12_4">12.4</string>
+    <string name="_6">6</string>
 </resources>

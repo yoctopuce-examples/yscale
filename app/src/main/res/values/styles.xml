@@ -13,15 +13,25 @@
     </style>
 
     <style name="settings_section">
-        <item name="android:layout_margin">8dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+
+        <item name="android:textSize">16sp</item>
         <item name="android:gravity">center</item>
         <item name="android:textColor">@color/secondary_text</item>
     </style>
 
     <style name="settings_parameter">
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/primary_text</item>
     </style>
 
+    <style name="divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">2dp</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:background">?android:attr/listDivider</item>
+    </style>
 
 </resources>

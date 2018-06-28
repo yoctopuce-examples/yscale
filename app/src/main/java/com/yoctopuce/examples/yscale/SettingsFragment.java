@@ -14,8 +14,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.yoctopuce.YoctoAPI.YMeasure;
-
 import java.util.Locale;
 
 /**
@@ -26,11 +24,14 @@ public class SettingsFragment extends BasicScaleFragment
 
     private TextView _liveValue;
     private EditText _refWeightEditText;
-    private String _unit;
     private double _liveVal;
-    private float _weight;
+    private double _weight;
     private long _count;
     private String _countUnit;
+    private Button _tare;
+    private Button _calibrate;
+    private boolean _disable_onchange = false;
+    //private boolean _devicePresent = false;
 
 
     public SettingsFragment()
@@ -48,7 +49,8 @@ public class SettingsFragment extends BasicScaleFragment
 
         if (activity != null) {
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
-            _weight = sharedPref.getFloat(getString(R.string.saved_ref_weight), 0);
+            final String weightStr = sharedPref.getString(getString(R.string.saved_ref_weight), "0.0");
+            _weight = Double.valueOf(weightStr);
             _count = sharedPref.getLong(getString(R.string.saved_ref_count), 0);
             _countUnit = sharedPref.getString(getString(R.string.saved_ref_unit), "Item(s)");
         }
@@ -65,8 +67,8 @@ public class SettingsFragment extends BasicScaleFragment
 
 
         //configure tare button
-        final Button tare = view.findViewById(R.id.tarebutton);
-        tare.setOnClickListener(new View.OnClickListener()
+        _tare = view.findViewById(R.id.tarebutton);
+        _tare.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
@@ -74,7 +76,6 @@ public class SettingsFragment extends BasicScaleFragment
                 _activity.onTare();
             }
         });
-
         // handle weight change
         _refWeightEditText.addTextChangedListener(new TextWatcher()
         {
@@ -87,10 +88,13 @@ public class SettingsFragment extends BasicScaleFragment
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count)
             {
+                if (_disable_onchange)
+                    return;
                 try {
                     final String strVal = s.toString();
-                    _weight = Float.valueOf(strVal);
+                    _weight = Double.valueOf(strVal);
                     saveSettings();
+
                 } catch (NumberFormatException ignored) {
                 }
 
@@ -110,7 +114,12 @@ public class SettingsFragment extends BasicScaleFragment
             @Override
             public void onClick(View v)
             {
-                formatRefWeight((float) _liveVal);
+                _disable_onchange = true;
+                formatRefWeight(_liveVal);
+                _weight = _liveVal;
+                saveSettings();
+                _disable_onchange = false;
+
             }
         });
         //handle count ref changes
@@ -170,8 +179,8 @@ public class SettingsFragment extends BasicScaleFragment
 
 
         // configure calibrate button
-        Button calibrate = view.findViewById(R.id.calibrate);
-        calibrate.setOnClickListener(new View.OnClickListener()
+        _calibrate = view.findViewById(R.id.calibrate);
+        _calibrate.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
@@ -179,8 +188,7 @@ public class SettingsFragment extends BasicScaleFragment
                 _activity.onCalibrate();
             }
         });
-
-
+        updateButtonState(_devicePresent);
         return view;
     }
 
@@ -189,9 +197,9 @@ public class SettingsFragment extends BasicScaleFragment
         _activity.onCountSettingsChange(_weight, _count, _countUnit);
     }
 
-    private void formatRefWeight(float weight)
+    private void formatRefWeight(double weight)
     {
-        _refWeightEditText.setText(String.format(Locale.US, "%f", weight));
+        _refWeightEditText.setText(String.format(Locale.US, "%s", weight));
     }
 
 
@@ -199,7 +207,7 @@ public class SettingsFragment extends BasicScaleFragment
     public void onNewDeviceArrival(String serialNumber, String unit)
     {
         super.onNewDeviceArrival(serialNumber, unit);
-        _unit = unit;
+        updateButtonState(true);
     }
 
     @Override
@@ -207,14 +215,27 @@ public class SettingsFragment extends BasicScaleFragment
     {
         super.onNewDeviceRemoval(serialNumber);
         _liveValue.setText(R.string.dummy_content);
+        updateButtonState(false);
+    }
+
+    private void updateButtonState(boolean b)
+    {
+        if (_calibrate != null) {
+            _calibrate.setEnabled(b);
+        }
+        if (_tare != null) {
+            _tare.setEnabled(b);
+        }
     }
 
     @Override
-    public void onNewMeasure(YMeasure measure)
+    public void onNewMeasure(double measure)
     {
         super.onNewMeasure(measure);
-        _liveVal = measure.get_averageValue();
-        _liveValue.setText(String.format(Locale.US, "%.1f%s", _liveVal, _unit));
+        _liveVal = measure;
+        if (_liveValue != null) {
+            _liveValue.setText(String.format(Locale.US, "%s%s", _liveVal, _unit));
+        }
     }
 
 }

@@ -36,6 +36,10 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
     private ViewPager _viewPager;
     private TabLayout _tabLayout;
     private ViewPagerAdapter _viewPagerAdapter;
+    private double _resolution;
+    private double _zeroTracking;
+    private int _exitation;
+    private long _iresol;
 
 
     @Override
@@ -55,7 +59,8 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
     private void setupViewPager(ViewPager viewPager)
     {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        float weight = sharedPref.getFloat(getString(R.string.saved_ref_weight), 0);
+        String strWeight = sharedPref.getString(getString(R.string.saved_ref_weight), "0.0");
+        double weight = Double.valueOf(strWeight);
         long count = sharedPref.getLong(getString(R.string.saved_ref_count), 0);
         String countUnit = sharedPref.getString(getString(R.string.saved_ref_unit), "Item(s)");
         String lastPannel = sharedPref.getString(getString(R.string.saved_last_pannel), "Graph");
@@ -182,16 +187,23 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
             _yWeighScale = YWeighScale.FindWeighScaleInContext(_yctx,
                     _serialNumber + ".weighScale1");
             _unit = _yWeighScale.get_unit();
-            _yWeighScale.set_zeroTracking(0.5);
-            _yWeighScale.set_excitation(YWeighScale.EXCITATION_AC);
-            _yWeighScale.set_resolution(1);
+            _resolution = _yWeighScale.get_resolution();
+            _iresol = Math.round(1.0 / _resolution);
+            _zeroTracking = _yWeighScale.get_zeroTracking();
+            _exitation = _yWeighScale.get_excitation();
+
+            //_yWeighScale.set_zeroTracking(0.02);
+            //_yWeighScale.set_excitation(YWeighScale.EXCITATION_AC);
+            //_yWeighScale.set_resolution(0.01);
             _yWeighScale.set_reportFrequency("4/s");
             _yWeighScale.registerTimedReportCallback(new YWeighScale.TimedReportCallback()
             {
                 @Override
                 public void timedReportCallback(YWeighScale function, YMeasure measure)
                 {
-                    getDiplayedFragment().onNewMeasure(measure);
+                    double roundvalue = measure.get_averageValue() * _iresol;
+                    final double v = ((double) Math.round(roundvalue)) / _iresol;
+                    getDiplayedFragment().onNewMeasure(v);
                 }
             });
 
@@ -316,12 +328,14 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
     }
 
     @Override
-    public void onCountSettingsChange(float weight, long count, String countUnit)
+    public void onCountSettingsChange(double weight, long count, String countUnit)
     {
+
+        String doubleStr = Double.toString(weight);
         // first save values in preferences
         PreferenceManager.getDefaultSharedPreferences(this)
                 .edit()
-                .putFloat(getString(R.string.saved_ref_weight), weight)
+                .putString(getString(R.string.saved_ref_weight), doubleStr)
                 .putLong(getString(R.string.saved_ref_count), count)
                 .putString(getString(R.string.saved_ref_unit), countUnit)
                 .apply();
