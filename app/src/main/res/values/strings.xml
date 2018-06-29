@@ -23,6 +23,6 @@
     <string name="reference_weight">Reference weight</string>
     <string name="reference_count">Reference count</string>
     <string name="current_weight">Current weight:</string>
-    <string name="_12_4">12.4</string>
-    <string name="_6">6</string>
+    <string name="_12_4">0.0</string>
+    <string name="_6">0</string>
 </resources>
