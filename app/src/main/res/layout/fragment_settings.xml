@@ -13,8 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:paddingBottom="32dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="32dp">
 
 
         <TextView
@@ -35,8 +35,8 @@
                 style="@style/settings_parameter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="0dp"
                 android:layout_marginStart="0dp"
+                android:layout_marginLeft="0dp"
                 android:gravity="center"
                 android:text="@string/current_weight"
                 app:layout_constraintBaseline_toBaselineOf="@+id/liveValue"
@@ -47,20 +47,21 @@
                 android:layout_width="wrap_content"
 
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
-                android:gravity="left"
+                android:layout_marginLeft="8dp"
+                android:gravity="start"
                 app:layout_constraintBaseline_toBaselineOf="@+id/tarebutton"
                 app:layout_constraintStart_toEndOf="@+id/textView"
                 tools:text="0 gr" />
 
             <Button
                 android:id="@+id/tarebutton"
+                style="@style/Widget.AppCompat.Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
-                android:layout_marginTop="8dp"
                 android:text="@string/tare"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -83,7 +84,8 @@
             android:layout_height="wrap_content"
             android:text="@string/reference_weight" />
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/linearLayout3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -91,20 +93,27 @@
                 android:id="@+id/ref_weight"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginBottom="2dp"
                 android:ems="10"
                 android:hint="@string/_12_4"
-                android:inputType="numberDecimal" />
+                android:importantForAutofill="no"
+                android:inputType="numberDecimal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/setWeightbutton"
+                app:layout_constraintStart_toStartOf="parent" />
 
 
             <Button
                 android:id="@+id/setWeightbutton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/use_current_value" />
-        </LinearLayout>
+                android:text="@string/use_current_value"
+                app:layout_constraintBaseline_toBaselineOf="@+id/ref_weight"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/ref_weight" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
             style="@style/settings_parameter"
@@ -119,14 +128,14 @@
             android:layout_weight="1"
             android:ems="10"
             android:hint="@string/_6"
+            android:importantForAutofill="no"
             android:inputType="number" />
-
 
         <TextView
             style="@style/settings_parameter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/unit" />
+            android:text="@string/count_unit" />
 
         <EditText
             android:id="@+id/countUnit"
@@ -136,6 +145,7 @@
             android:layout_weight="1"
             android:ems="10"
             android:hint="@string/item"
+            android:importantForAutofill="no"
             android:inputType="textAutoComplete" />
 
         <View style="@style/divider" />
@@ -145,6 +155,47 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/load_cell_settings" />
+
+
+        <TextView
+            style="@style/settings_parameter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/unit" />
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/linearLayoutUnit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/cellUnit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginBottom="2dp"
+                android:ems="10"
+                android:hint="@string/g"
+                android:importantForAutofill="no"
+                android:inputType="textAutoComplete"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/setUnitbutton"
+                app:layout_constraintStart_toStartOf="parent" />
+
+
+            <Button
+                android:id="@+id/setUnitbutton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/save"
+                android:enabled="false"
+                app:layout_constraintBaseline_toBaselineOf="@+id/cellUnit"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/cellUnit" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
 
         <Button
             android:id="@+id/calibrate"

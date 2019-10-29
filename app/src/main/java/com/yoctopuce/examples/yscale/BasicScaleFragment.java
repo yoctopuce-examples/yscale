@@ -9,14 +9,15 @@ import android.util.Log;
  */
 public class BasicScaleFragment extends Fragment
 {
-    protected OnFragmentAction _activity;
-    protected boolean _devicePresent;
-    protected String _unit = "";
+    OnFragmentAction _activity;
+    boolean _devicePresent;
+    String _unit = "";
 
     public void onCountChanges(double weight, long count, String countUnit)
     {
 
     }
+
 
 
     // Container Activity must implement this interface
@@ -29,6 +30,7 @@ public class BasicScaleFragment extends Fragment
         public void onCalibrate();
 
         void onCountSettingsChange(double weight, long count, String countUnit);
+        void onUnitchange(String Unit);
     }
 
 
@@ -65,6 +67,11 @@ public class BasicScaleFragment extends Fragment
         Log.d("Basic", "removal of " + serialNumber);
         _devicePresent = false;
 
+    }
+
+    public void onUnitUpdate(String unit)
+    {
+        _unit = unit;
     }
 
     public void onNewMeasure(double measure)

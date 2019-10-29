@@ -3,8 +3,10 @@ package com.yoctopuce.examples.yscale;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
+
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -209,7 +211,6 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
 
             for (BasicScaleFragment fragment : _viewPagerAdapter.mFragmentList) {
                 fragment.onNewDeviceArrival(_serialNumber, _unit);
-
             }
         } catch (YAPI_Exception e) {
             e.printStackTrace();
@@ -342,6 +343,24 @@ public class FullscreenActivity extends AppCompatActivity implements CalibrateDi
         // then update all fragments
         for (BasicScaleFragment fragment : _viewPagerAdapter.mFragmentList) {
             fragment.onCountChanges(weight, count, countUnit);
+        }
+
+    }
+
+    @Override
+    public void onUnitchange(String unit)
+    {
+        try {
+            _yWeighScale.set_unit(unit);
+            _yWeighScale.get_module().saveToFlash();
+            for (BasicScaleFragment fragment : _viewPagerAdapter.mFragmentList) {
+                fragment.onUnitUpdate(unit);
+            }
+        } catch (YAPI_Exception e) {
+            e.printStackTrace();
+            Snackbar.make(_viewPager,
+                    "Unable to save unit:" + e.getLocalizedMessage(),
+                    Snackbar.LENGTH_INDEFINITE).show();
         }
 
     }

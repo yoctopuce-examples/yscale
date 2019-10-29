@@ -92,10 +92,9 @@ public class GraphScaleFragment extends BasicScaleFragment
     {
         final String text;
 
-        if (weight > 1000) {
+        if ("g".equals(_unit) && weight > 1000) {
             text = String.format(Locale.US, "%.3f %s", weight / 1000, "kg");
         } else {
-
             text = String.format(Locale.US, "%s %s", weight, _unit);
         }
         if (_textView != null) {

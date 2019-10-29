@@ -25,4 +25,7 @@
     <string name="current_weight">Current weight:</string>
     <string name="_12_4">0.0</string>
     <string name="_6">0</string>
+    <string name="count_unit">Unit (count)</string>
+    <string name="g">g</string>
+    <string name="save">Save</string>
 </resources>

@@ -3,8 +3,10 @@ package com.yoctopuce.examples.yscale;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
+
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -32,6 +34,8 @@ public class SettingsFragment extends BasicScaleFragment
     private Button _calibrate;
     private boolean _disable_onchange = false;
     private Button _setValue;
+    private EditText _cellUnit;
+    private Button _setUnitButton;
     //private boolean _devicePresent = false;
 
 
@@ -65,6 +69,10 @@ public class SettingsFragment extends BasicScaleFragment
         formatRefWeight(_weight);
         refCountEditText.setText(String.format(Locale.US, "%d", _count));
         unitCountEditText.setText(_countUnit);
+
+        _cellUnit = view.findViewById(R.id.cellUnit);
+        _cellUnit.setText(_unit);
+        _setUnitButton = view.findViewById(R.id.setUnitbutton);
 
 
         //configure tare button
@@ -179,6 +187,48 @@ public class SettingsFragment extends BasicScaleFragment
         });
 
 
+        //configure set unit button
+        _setUnitButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                String newunit = _cellUnit.getText().toString();
+                if (newunit.equals(_unit)){
+                    return;
+                }
+                _unit = newunit;
+                _activity.onUnitchange(newunit);
+            }
+        });
+        //handle count ref changes
+        _cellUnit.addTextChangedListener(new TextWatcher()
+        {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after)
+            {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count)
+            {
+                String newUnit = s.toString();
+                if (!_unit.equals(newUnit)) {
+                    _setUnitButton.setEnabled(true);
+                }else{
+                    _setUnitButton.setEnabled(false);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s)
+            {
+
+            }
+        });
+
+
         // configure calibrate button
         _calibrate = view.findViewById(R.id.calibrate);
         _calibrate.setOnClickListener(new View.OnClickListener()
@@ -208,6 +258,9 @@ public class SettingsFragment extends BasicScaleFragment
     public void onNewDeviceArrival(String serialNumber, String unit)
     {
         super.onNewDeviceArrival(serialNumber, unit);
+        if (_cellUnit!=null) {
+            _cellUnit.setText(unit);
+        }
         updateButtonState(true);
     }
 

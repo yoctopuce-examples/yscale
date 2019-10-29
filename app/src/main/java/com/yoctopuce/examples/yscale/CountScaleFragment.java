@@ -18,7 +18,6 @@ public class CountScaleFragment extends BasicScaleFragment
     private TextView _currentCountText;
     private TextView _currentWeightText;
     private TextView _currentRatioText;
-    private String _unit;
     private double _weight_ref = 1;
     private long _count_ref = 1;
     private String _count_label = "";
@@ -56,7 +55,7 @@ public class CountScaleFragment extends BasicScaleFragment
 
     private String formatWeight(double weight)
     {
-        return String.format(Locale.US, "(%s%s)", weight, _unit);
+        return String.format(Locale.US, "(%s %s)", weight, _unit);
     }
 
 
@@ -65,6 +64,13 @@ public class CountScaleFragment extends BasicScaleFragment
     {
         super.onNewDeviceArrival(serialNumber, unit);
         _unit = unit;
+        updateUI();
+    }
+
+    @Override
+    public void onUnitUpdate(String unit)
+    {
+        super.onUnitUpdate(unit);
         updateUI();
     }
 
