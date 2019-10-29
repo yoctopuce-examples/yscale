@@ -6,8 +6,8 @@ android {
         applicationId "com.yoctopuce.examples.yscale"
         minSdkVersion 15
         targetSdkVersion 29
-        versionCode 3
-        versionName "1.0.3"
+        versionCode 5
+        versionName "1.0.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -24,7 +24,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.preference:preference:1.1.0'
     implementation 'com.google.android.material:material:1.0.0'
-    implementation 'com.yoctopuce.android:YoctoLib:1.10.37304'
+    implementation 'com.yoctopuce.android:YoctoLib:1.10.37913'
     implementation 'com.jjoe64:graphview:4.2.2'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
